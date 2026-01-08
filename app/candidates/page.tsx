@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/submit-button";
 import { Badge } from "@/components/ui/badge";
 
+export const dynamic = 'force-dynamic';
+
 export default async function CandidatesPage({ searchParams }: { searchParams: { jobId?: string } }) {
     const jobId = searchParams.jobId ? parseInt(searchParams.jobId) : undefined;
     const candidates = await getCandidates(jobId);
