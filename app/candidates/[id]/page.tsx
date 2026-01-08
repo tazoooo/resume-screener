@@ -1,4 +1,5 @@
-import { getCandidate, getEvaluation, getJob, runScreening } from "@/app/actions";
+import { getCandidate, getEvaluation, getJob, getJobs, runScreening } from "@/app/actions";
+import { CrossCheckSection } from "./cross-check-section";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/submit-button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,9 @@ export default async function CandidateDetailPage({ params }: { params: Promise<
 
     const job = await getJob(candidate.jobId!);
     const evaluation = await getEvaluation(id);
+
+    const allJobs = await getJobs();
+    const otherJobs = allJobs.filter(j => j.id !== candidate.jobId);
 
     return (
         <div className="container mx-auto py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -98,6 +102,7 @@ export default async function CandidateDetailPage({ params }: { params: Promise<
                         </div>
                     </CardContent>
                 </Card>
+                <CrossCheckSection candidateId={id} jobs={otherJobs} />
             </div>
 
             <div>
@@ -117,6 +122,6 @@ export default async function CandidateDetailPage({ params }: { params: Promise<
                     </CardContent>
                 </Card>
             </div>
-        </div>
+        </div >
     );
 }

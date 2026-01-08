@@ -263,3 +263,22 @@ export async function runScreening(candidateId: number) {
     revalidatePath("/candidates");
     revalidatePath(`/candidates/${candidateId}`);
 }
+
+export async function screenCandidateAgainstJob(candidateId: number, targetJobId: number) {
+    const candidate = (await db.select().from(candidates).where(eq(candidates.id, candidateId)))[0];
+    if (!candidate || !candidate.parsedText) {
+        return { success: false, error: "Candidate text not found" };
+    }
+
+    const job = (await db.select().from(jobs).where(eq(jobs.id, targetJobId)))[0];
+    if (!job) {
+        return { success: false, error: "Target job not found" };
+    }
+
+    try {
+        const result = await screenCandidate(job, candidate.parsedText);
+        return { success: true, data: result };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
