@@ -101,57 +101,62 @@ const jobData = [
 ];
 
 export async function resetDatabase() {
-    // Reset Database: Drop all tables with Cascade
-    await db.execute(sql`DROP TABLE IF EXISTS evaluations CASCADE;`);
-    await db.execute(sql`DROP TABLE IF EXISTS candidates CASCADE;`);
-    await db.execute(sql`DROP TABLE IF EXISTS jobs CASCADE;`);
+    try {
+        // Reset Database: Drop all tables with Cascade
+        await db.execute(sql`DROP TABLE IF EXISTS evaluations CASCADE;`);
+        await db.execute(sql`DROP TABLE IF EXISTS candidates CASCADE;`);
+        await db.execute(sql`DROP TABLE IF EXISTS jobs CASCADE;`);
 
-    // Re-create tables
-    await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS jobs (
-            id SERIAL PRIMARY KEY,
-            title TEXT NOT NULL,
-            description TEXT,
-            criteria JSONB NOT NULL,
-            created_at TIMESTAMP DEFAULT NOW()
-        );
-    `);
+        // Re-create tables
+        await db.execute(sql`
+            CREATE TABLE IF NOT EXISTS jobs (
+                id SERIAL PRIMARY KEY,
+                title TEXT NOT NULL,
+                description TEXT,
+                criteria JSONB NOT NULL,
+                created_at TIMESTAMP DEFAULT NOW()
+            );
+        `);
 
-    await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS candidates (
-            id SERIAL PRIMARY KEY,
-            job_id INTEGER REFERENCES jobs(id),
-            name TEXT NOT NULL,
-            email TEXT,
-            document_path TEXT NOT NULL,
-            parsed_text TEXT,
-            status TEXT DEFAULT 'pending',
-            created_at TIMESTAMP DEFAULT NOW()
-        );
-    `);
+        await db.execute(sql`
+            CREATE TABLE IF NOT EXISTS candidates (
+                id SERIAL PRIMARY KEY,
+                job_id INTEGER REFERENCES jobs(id),
+                name TEXT NOT NULL,
+                email TEXT,
+                document_path TEXT NOT NULL,
+                parsed_text TEXT,
+                status TEXT DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT NOW()
+            );
+        `);
 
-    await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS evaluations (
-            id SERIAL PRIMARY KEY,
-            candidate_id INTEGER REFERENCES candidates(id),
-            result TEXT NOT NULL,
-            score INTEGER DEFAULT 0,
-            rationale TEXT,
-            details JSONB,
-            created_at TIMESTAMP DEFAULT NOW()
-        );
-    `);
+        await db.execute(sql`
+            CREATE TABLE IF NOT EXISTS evaluations (
+                id SERIAL PRIMARY KEY,
+                candidate_id INTEGER REFERENCES candidates(id),
+                result TEXT NOT NULL,
+                score INTEGER DEFAULT 0,
+                rationale TEXT,
+                details JSONB,
+                created_at TIMESTAMP DEFAULT NOW()
+            );
+        `);
 
-    for (const job of jobData) {
-        await db.insert(jobs).values({
-            title: job.title,
-            description: job.description,
-            criteria: job.criteria
-        });
+        for (const job of jobData) {
+            await db.insert(jobs).values({
+                title: job.title,
+                description: job.description,
+                criteria: job.criteria
+            });
+        }
+
+        revalidatePath("/jobs");
+        return { success: true };
+    } catch (error: any) {
+        console.error("Reset DB Error:", error);
+        return { success: false, error: error.message };
     }
-
-    revalidatePath("/jobs");
-    return { success: true };
 }
 
 // JOBS

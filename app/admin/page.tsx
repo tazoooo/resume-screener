@@ -12,10 +12,14 @@ export default function AdminPage() {
     const handleReset = async () => {
         try {
             setStatus("実行中...");
-            await resetDatabase();
-            setStatus("成功しました！データベースが初期化されました。");
+            const result = await resetDatabase();
+            if (result.success) {
+                setStatus("成功しました！データベースが初期化されました。");
+            } else {
+                setStatus("エラー (Server): " + result.error);
+            }
         } catch (e: any) {
-            setStatus("エラー: " + e.message);
+            setStatus("エラー (Client): " + e.message);
         }
     };
 
