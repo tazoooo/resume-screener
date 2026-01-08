@@ -215,9 +215,11 @@ export async function getCandidates(jobId?: number) {
         createdAt: candidates.createdAt,
         score: evaluations.score,
         result: evaluations.result,
+        jobTitle: jobs.title,
     })
         .from(candidates)
-        .leftJoin(evaluations, eq(candidates.id, evaluations.candidateId));
+        .leftJoin(evaluations, eq(candidates.id, evaluations.candidateId))
+        .leftJoin(jobs, eq(candidates.jobId, jobs.id));
 
     if (jobId) {
         return await baseQuery.where(eq(candidates.jobId, jobId)).orderBy(desc(candidates.createdAt));

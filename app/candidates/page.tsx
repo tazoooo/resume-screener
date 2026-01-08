@@ -1,6 +1,6 @@
 import { getCandidates, getJobs, runScreening } from "@/app/actions";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { SubmitButton } from "@/components/submit-button";
 import { Badge } from "@/components/ui/badge";
 
@@ -23,12 +23,12 @@ export default async function CandidatesPage({ searchParams }: { searchParams: {
             </div>
 
             <div className="flex gap-4 mb-6">
-                <Link href="/candidates">
-                    <Button variant={!jobId ? "default" : "outline"}>全ての求人</Button>
+                <Link href="/candidates" className={buttonVariants({ variant: !jobId ? "default" : "outline" })}>
+                    全ての求人
                 </Link>
                 {jobs.map(job => (
-                    <Link key={job.id} href={`/candidates?jobId=${job.id}`}>
-                        <Button variant={jobId === job.id ? "default" : "outline"}>{job.title}</Button>
+                    <Link key={job.id} href={`/candidates?jobId=${job.id}`} className={buttonVariants({ variant: jobId === job.id ? "default" : "outline" })}>
+                        {job.title}
                     </Link>
                 ))}
             </div>
@@ -44,6 +44,7 @@ export default async function CandidatesPage({ searchParams }: { searchParams: {
                     <div key={c.id} className="grid grid-cols-5 p-3 border-t items-center hover:bg-gray-50">
                         <div className="col-span-2">
                             <div className="font-medium">{c.name}</div>
+                            <div className="text-xs text-gray-400 font-bold mt-0.5">求人: {(c as any).jobTitle}</div>
                             <div className="text-xs text-gray-500">{c.documentPath}</div>
                         </div>
                         <div>
