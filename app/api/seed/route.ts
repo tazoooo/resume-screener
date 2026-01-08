@@ -100,7 +100,12 @@ const jobData = [
 
 export async function GET() {
     try {
-        // Create tables if they don't exist (Manual Migration for Vercel)
+        // Reset Database: Drop all tables with Cascade to handle foreign keys
+        await db.execute(sql`DROP TABLE IF EXISTS evaluations CASCADE;`);
+        await db.execute(sql`DROP TABLE IF EXISTS candidates CASCADE;`);
+        await db.execute(sql`DROP TABLE IF EXISTS jobs CASCADE;`);
+
+        // Re-create tables
         await db.execute(sql`
             CREATE TABLE IF NOT EXISTS jobs (
                 id SERIAL PRIMARY KEY,
@@ -136,7 +141,7 @@ export async function GET() {
             );
         `);
 
-        await db.delete(jobs);
+        // Note: No need to delete(jobs) since we just dropped the table.
 
         for (const job of jobData) {
             await db.insert(jobs).values({
@@ -146,8 +151,12 @@ export async function GET() {
             });
         }
 
-        return NextResponse.json({ success: true, message: "Jobs seeded successfully" });
+        return NextResponse.json({ success: true, message: "Database reset and seeded successfully" });
     } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({
+            error: error.message,
+            cause: error.cause,
+            stack: error.stack
+        }, { status: 500 });
     }
 }
