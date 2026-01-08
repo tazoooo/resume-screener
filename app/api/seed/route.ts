@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { sql } from "drizzle-orm";
 import { jobs } from "@/lib/schema";
+
+export const dynamic = "force-dynamic";
 
 const jobData = [
     {
@@ -97,6 +100,42 @@ const jobData = [
 
 export async function GET() {
     try {
+        // Create tables if they don't exist (Manual Migration for Vercel)
+        await db.execute(sql`
+            CREATE TABLE IF NOT EXISTS jobs (
+                id SERIAL PRIMARY KEY,
+                title TEXT NOT NULL,
+                description TEXT,
+                criteria JSONB NOT NULL,
+                created_at TIMESTAMP DEFAULT NOW()
+            );
+        `);
+
+        await db.execute(sql`
+            CREATE TABLE IF NOT EXISTS candidates (
+                id SERIAL PRIMARY KEY,
+                job_id INTEGER REFERENCES jobs(id),
+                name TEXT NOT NULL,
+                email TEXT,
+                document_path TEXT NOT NULL,
+                parsed_text TEXT,
+                status TEXT DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT NOW()
+            );
+        `);
+
+        await db.execute(sql`
+            CREATE TABLE IF NOT EXISTS evaluations (
+                id SERIAL PRIMARY KEY,
+                candidate_id INTEGER REFERENCES candidates(id),
+                result TEXT NOT NULL,
+                score INTEGER DEFAULT 0,
+                rationale TEXT,
+                details JSONB,
+                created_at TIMESTAMP DEFAULT NOW()
+            );
+        `);
+
         await db.delete(jobs);
 
         for (const job of jobData) {
