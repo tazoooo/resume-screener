@@ -102,11 +102,24 @@ const jobData = [
 
 export async function resetDatabase() {
     try {
+        console.log("Checking environment variables...");
+        if (!process.env.POSTGRES_URL) {
+            console.error("CRITICAL: POSTGRES_URL is missing!");
+            return {
+                success: false,
+                error: "CRITICAL ERROR: POSTGRES_URL environment variable is NOT SET. Please connect a database in Vercel Storage settings."
+            };
+        }
+
+        console.log("POSTGRES_URL exists (starts with):", process.env.POSTGRES_URL.substring(0, 10) + "...");
+
         // Reset Database: Drop all tables with Cascade
+        console.log("Executing DROP TABLE...");
         await db.execute(sql`DROP TABLE IF EXISTS evaluations CASCADE;`);
         await db.execute(sql`DROP TABLE IF EXISTS candidates CASCADE;`);
         await db.execute(sql`DROP TABLE IF EXISTS jobs CASCADE;`);
 
+        console.log("Executing CREATE TABLE jobs...");
         // Re-create tables
         await db.execute(sql`
             CREATE TABLE IF NOT EXISTS jobs (
@@ -118,6 +131,7 @@ export async function resetDatabase() {
             );
         `);
 
+        console.log("Executing CREATE TABLE candidates...");
         await db.execute(sql`
             CREATE TABLE IF NOT EXISTS candidates (
                 id SERIAL PRIMARY KEY,
@@ -131,6 +145,7 @@ export async function resetDatabase() {
             );
         `);
 
+        console.log("Executing CREATE TABLE evaluations...");
         await db.execute(sql`
             CREATE TABLE IF NOT EXISTS evaluations (
                 id SERIAL PRIMARY KEY,
@@ -143,6 +158,7 @@ export async function resetDatabase() {
             );
         `);
 
+        console.log("Seeding initial data...");
         for (const job of jobData) {
             await db.insert(jobs).values({
                 title: job.title,
@@ -150,12 +166,16 @@ export async function resetDatabase() {
                 criteria: job.criteria
             });
         }
+        console.log("Seeding complete.");
 
         revalidatePath("/jobs");
         return { success: true };
     } catch (error: any) {
-        console.error("Reset DB Error:", error);
-        return { success: false, error: error.message };
+        console.error("Reset DB Error Full:", error);
+        return {
+            success: false,
+            error: `DB Error: ${error.message} (Code: ${error.code})`
+        };
     }
 }
 
