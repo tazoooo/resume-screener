@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function CandidateDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id: paramId } = await params;
     const id = parseInt(paramId);

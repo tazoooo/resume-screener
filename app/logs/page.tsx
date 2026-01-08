@@ -6,6 +6,8 @@ import { desc, eq } from "drizzle-orm";
 // I likely didn't install table component. Use standard HTML or setup table component.
 // Using standard HTML for simplicity to avoid overhead.
 
+export const dynamic = "force-dynamic";
+
 export default async function LogsPage() {
     const result = await db.select({
         id: evaluations.id,
