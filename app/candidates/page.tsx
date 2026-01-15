@@ -14,7 +14,7 @@ export default async function CandidatesPage({ searchParams }: { searchParams: {
     return (
         <div className="container mx-auto py-8">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">候補者一覧</h1>
+                <h1 className="text-3xl font-bold">候補者一覧 <span className="text-sm font-normal text-gray-400">v2.1</span></h1>
                 <div className="flex gap-2">
                     <Link href="/candidates/upload">
                         <Button>履歴書アップロード</Button>
