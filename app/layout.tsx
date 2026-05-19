@@ -28,6 +28,7 @@ export default function RootLayout({
                             <Link href="/jobs" className="hover:text-black transition-colors">求人管理</Link>
                             <Link href="/candidates" className="hover:text-black transition-colors">候補者管理</Link>
                             <Link href="/logs" className="hover:text-black transition-colors">選考ログ</Link>
+                            <Link href="/concierge" className="hover:text-black transition-colors text-indigo-600">Task Concierge</Link>
                         </div>
                     </div>
                 </nav>
